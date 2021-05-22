@@ -144,8 +144,10 @@ func GetStringsSlice(ctxt context.Context, jsString string, stringSlice *[]strin
 }
 
 func GetReader(ctxt context.Context, jsString string, needLog, needFatal bool) *strings.Reader {
-	c := color.New(color.FgGreen)
-	c.Printf("Getting a string ' %s  ' - ", jsString)
+	if needLog {
+		c := color.New(color.FgGreen)
+		c.Printf("Getting a string ' %s  ' - ", jsString)
+	}
 	var resultString string
 	err := chromedp.Run(ctxt, RunWithTimeOut(&ctxt, 60, getString(jsString, &resultString)))
 	if err != nil {
@@ -157,8 +159,10 @@ func GetReader(ctxt context.Context, jsString string, needLog, needFatal bool) *
 		color.Green("Try again")
 		GetReader(ctxt, jsString, needLog, needFatal)
 	}
-	d := color.New(color.FgGreen, color.Bold)
-	d.Println("Ok!")
+	if needLog {
+		d := color.New(color.FgGreen, color.Bold)
+		d.Println("Ok!")
+	}
 	return strings.NewReader(resultString)
 }
 
@@ -169,8 +173,10 @@ func getBool(jsBool string, resultBool *bool) chromedp.Tasks {
 }
 
 func GetBool(ctxt context.Context, jsBool string, resultBool *bool, needLog, needFatal bool) {
-	c := color.New(color.FgGreen)
-	c.Printf("Getting a string ' %s  ' - ", jsBool)
+	if needLog {
+		c := color.New(color.FgGreen)
+		c.Printf("Getting a string ' %s  ' - ", jsBool)
+	}
 	err := chromedp.Run(ctxt, RunWithTimeOut(&ctxt, 60, getBool(jsBool, resultBool)))
 	if err != nil {
 		utils.SendErrorToTelegram("CHROME: GetBool Error occured")
@@ -181,8 +187,10 @@ func GetBool(ctxt context.Context, jsBool string, resultBool *bool, needLog, nee
 		color.Green("Try again")
 		GetBool(ctxt, jsBool, resultBool, needLog, needFatal)
 	}
-	d := color.New(color.FgGreen, color.Bold)
-	d.Println("Ok!")
+	if needLog {
+		d := color.New(color.FgGreen, color.Bold)
+		d.Println("Ok!")
+	}
 }
 
 func click(selector string) chromedp.Tasks {
@@ -193,8 +201,10 @@ func click(selector string) chromedp.Tasks {
 }
 
 func Click(ctxt context.Context, selector string, needLog, needFatal bool) {
-	c := color.New(color.FgGreen)
-	c.Printf("Click selector: ' %s '  - ", selector)
+	if needLog {
+		c := color.New(color.FgGreen)
+		c.Printf("Click selector: ' %s '  - ", selector)
+	}
 	err := chromedp.Run(ctxt, RunWithTimeOut(&ctxt, 60, waitVisible(selector)))
 	if err != nil {
 		utils.SendErrorToTelegram("CHROME: Click Error occured")
@@ -208,9 +218,45 @@ func Click(ctxt context.Context, selector string, needLog, needFatal bool) {
 	err = chromedp.Run(ctxt, RunWithTimeOut(&ctxt, 60, click(selector)))
 	if err != nil {
 		utils.SendErrorToTelegram("CHROME: Click Error occured")
-		color.Red("Error occured")
-		log.Fatal(err)
+		color.Red("Error in Click occurred")
+		if needFatal {
+			log.Fatal(err)
+		}
+		color.Green("Try again")
+		Click(ctxt, selector, needLog, needFatal)
 	}
-	d := color.New(color.FgGreen, color.Bold)
-	d.Println("Ok!")
+	if needLog {
+		d := color.New(color.FgGreen, color.Bold)
+		d.Println("Ok!")
+	}
+}
+
+func setInputValue(selector, value string, result *string) chromedp.Tasks {
+	return chromedp.Tasks{
+		chromedp.EvaluateAsDevTools(scriptSetInputValue(selector, value), result),
+	}
+}
+
+func SetInputValue(ctxt context.Context, selector, value string, needLog, needFatal bool) {
+	if needLog {
+		c := color.New(color.FgGreen)
+		c.Printf("Setting an input >>>%s<<< value - >>>%s<<<", selector, value)
+	}
+	color.Green("")
+	var resultOperation string
+
+	err := chromedp.Run(ctxt, RunWithTimeOut(&ctxt, 60, setInputValue(selector, value, &resultOperation)))
+	if err != nil {
+		utils.SendErrorToTelegram("CHROME: SetInputValue Error occured")
+		color.Red("Error in SetInputValue occurred")
+		if needFatal {
+			log.Fatal(err)
+		}
+		color.Green("Try again")
+		SetInputValue(ctxt, selector, value, needLog, needFatal)
+	}
+	if needLog {
+		d := color.New(color.FgGreen, color.Bold)
+		d.Println("Ok!")
+	}
 }

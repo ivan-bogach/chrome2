@@ -41,3 +41,16 @@ func scriptGetBool(jsBool string) string {
 		}
 	`
 }
+
+func scriptSetInputValue(selector, value string) string {
+	return `
+		try {
+			var input = document.querySelector("` + selector + `");
+			input.value = "` + value + `";
+			input.select();
+			"Ok!"
+		} catch(err) {
+  			err.stack
+		}
+	`
+}
