@@ -260,3 +260,31 @@ func SetInputValue(ctxt context.Context, selector, value string, needLog, needFa
 		d.Println("Ok!")
 	}
 }
+
+func waitReady(selector string) chromedp.Tasks {
+	return chromedp.Tasks{
+		chromedp.WaitReady(selector, chromedp.ByQuery),
+	}
+}
+
+func WaitReady(ctxt context.Context, selector string, needLog, needFatal bool) {
+	if needLog {
+		c := color.New(color.FgGreen)
+		c.Printf("Wait ready css:' %s ' - ", selector)
+	}
+	err := chromedp.Run(ctxt, RunWithTimeOut(&ctxt, 60, waitReady(selector)))
+
+	if err != nil {
+		utils.SendErrorToTelegram("CHROME: WaitReady Error occured")
+		color.Red("Error in WaitReady occurred")
+		if needFatal {
+			log.Fatal(err)
+		}
+		color.Green("Try again")
+		WaitReady(ctxt, selector, needLog, needFatal)
+	}
+	if needLog {
+		d := color.New(color.FgGreen, color.Bold)
+		d.Println("Ok!.")
+	}
+}
