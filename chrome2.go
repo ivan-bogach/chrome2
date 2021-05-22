@@ -3,6 +3,7 @@ package chrome2
 import (
 	"context"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/fatih/color"
@@ -74,14 +75,43 @@ func WaitVisible(ctxt context.Context, selector string, needLog, needFatal bool)
 	err := chromedp.Run(ctxt, RunWithTimeOut(&ctxt, 60, waitVisible(selector)))
 	if err != nil {
 		utils.SendErrorToTelegram("CHROME: WaitVisible Error occured")
-		color.Red("Error occurred")
+		color.Red("Error in WaitVisible occurred")
 		if needFatal {
 			log.Fatal(err)
 		}
+		color.Green("Try again")
+		WaitVisible(ctxt, selector, needLog, needFatal)
 	}
 	if needLog {
 		d := color.New(color.FgGreen, color.Bold)
 		d.Println("Ok!.")
+	}
+}
+
+func getString(jsString string, resultString *string) chromedp.Tasks {
+	return chromedp.Tasks{
+		chromedp.EvaluateAsDevTools(scriptGetString(jsString), resultString),
+	}
+}
+
+func GetString(ctxt context.Context, jsString string, resultString *string, needLog, needFatal bool) {
+	if needLog {
+		c := color.New(color.FgGreen)
+		c.Printf("Getting a string ' %s  ' - ", jsString)
+	}
+	err := chromedp.Run(ctxt, RunWithTimeOut(&ctxt, 60, getString(jsString, resultString)))
+	if err != nil {
+		utils.SendErrorToTelegram("CHROME: GetString Error occured")
+		color.Red("Error in GetString occurred")
+		if needFatal {
+			log.Fatal(err)
+		}
+		color.Green("Try again")
+		GetString(ctxt, jsString, resultString, needLog, needFatal)
+	}
+	if needLog {
+		d := color.New(color.FgGreen, color.Bold)
+		d.Println("Ok!")
 	}
 }
 
@@ -97,13 +127,15 @@ func GetStringsSlice(ctxt context.Context, jsString string, stringSlice *[]strin
 		c.Printf("Getting a strings slice ' %s  ' - ", jsString)
 	}
 	color.Green("")
-	err := chromedp.Run(ctxt, getStringsSlice(jsString, stringSlice))
+	err := chromedp.Run(ctxt, RunWithTimeOut(&ctxt, 60, getStringsSlice(jsString, stringSlice)))
 	if err != nil {
 		utils.SendErrorToTelegram("CHROME: GetStringsSlice Error occured")
-		color.Red("Error occured")
+		color.Red("Error in GetStringsSlice occurred")
 		if needFatal {
 			log.Fatal(err)
 		}
+		color.Green("Try again")
+		GetStringsSlice(ctxt, jsString, stringSlice, needLog, needFatal)
 	}
 	if needLog {
 		d := color.New(color.FgGreen, color.Bold)
@@ -111,27 +143,74 @@ func GetStringsSlice(ctxt context.Context, jsString string, stringSlice *[]strin
 	}
 }
 
-func getString(jsString string, resultString *string) chromedp.Tasks {
-	return chromedp.Tasks{
-		chromedp.EvaluateAsDevTools(scriptGetString(jsString), resultString),
-	}
-}
-
-func GetString(ctxt context.Context, jsString string, resultString *string, needLog, needFatal bool) {
-	if needLog {
-		c := color.New(color.FgGreen)
-		c.Printf("Getting a string ' %s  ' - ", jsString)
-	}
-	err := chromedp.Run(ctxt, getString(jsString, resultString))
+func GetReader(ctxt context.Context, jsString string, needLog, needFatal bool) *strings.Reader {
+	c := color.New(color.FgGreen)
+	c.Printf("Getting a string ' %s  ' - ", jsString)
+	var resultString string
+	err := chromedp.Run(ctxt, RunWithTimeOut(&ctxt, 60, getString(jsString, &resultString)))
 	if err != nil {
-		utils.SendErrorToTelegram("CHROME: GetString Error occured")
-		color.Red("Error occured")
+		utils.SendErrorToTelegram("CHROME: GetReader Error occured")
+		color.Red("Error in GetReader occurred")
 		if needFatal {
 			log.Fatal(err)
 		}
+		color.Green("Try again")
+		GetReader(ctxt, jsString, needLog, needFatal)
 	}
-	if needLog {
-		d := color.New(color.FgGreen, color.Bold)
-		d.Println("Ok!")
+	d := color.New(color.FgGreen, color.Bold)
+	d.Println("Ok!")
+	return strings.NewReader(resultString)
+}
+
+func getBool(jsBool string, resultBool *bool) chromedp.Tasks {
+	return chromedp.Tasks{
+		chromedp.EvaluateAsDevTools(scriptGetBool(jsBool), resultBool),
 	}
+}
+
+func GetBool(ctxt context.Context, jsBool string, resultBool *bool, needLog, needFatal bool) {
+	c := color.New(color.FgGreen)
+	c.Printf("Getting a string ' %s  ' - ", jsBool)
+	err := chromedp.Run(ctxt, RunWithTimeOut(&ctxt, 60, getBool(jsBool, resultBool)))
+	if err != nil {
+		utils.SendErrorToTelegram("CHROME: GetBool Error occured")
+		color.Red("Error in GetBool occurred")
+		if needFatal {
+			log.Fatal(err)
+		}
+		color.Green("Try again")
+		GetBool(ctxt, jsBool, resultBool, needLog, needFatal)
+	}
+	d := color.New(color.FgGreen, color.Bold)
+	d.Println("Ok!")
+}
+
+func click(selector string) chromedp.Tasks {
+	return chromedp.Tasks{
+		chromedp.Sleep(1 * time.Second),
+		chromedp.Click(selector, chromedp.ByQuery),
+	}
+}
+
+func Click(ctxt context.Context, selector string, needLog, needFatal bool) {
+	c := color.New(color.FgGreen)
+	c.Printf("Click selector: ' %s '  - ", selector)
+	err := chromedp.Run(ctxt, RunWithTimeOut(&ctxt, 60, waitVisible(selector)))
+	if err != nil {
+		utils.SendErrorToTelegram("CHROME: Click Error occured")
+		color.Red("Error in Click occurred")
+		if needFatal {
+			log.Fatal(err)
+		}
+		color.Green("Try again")
+		Click(ctxt, selector, needLog, needFatal)
+	}
+	err = chromedp.Run(ctxt, RunWithTimeOut(&ctxt, 60, click(selector)))
+	if err != nil {
+		utils.SendErrorToTelegram("CHROME: Click Error occured")
+		color.Red("Error occured")
+		log.Fatal(err)
+	}
+	d := color.New(color.FgGreen, color.Bold)
+	d.Println("Ok!")
 }

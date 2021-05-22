@@ -31,3 +31,13 @@ func scriptGetString(jsString string) string {
 		}
 	`
 }
+
+func scriptGetBool(jsBool string) string {
+	return `
+		try {
+			` + jsBool + `
+		} catch(err) {
+  			err.stack
+		}
+	`
+}
