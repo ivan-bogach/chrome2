@@ -53,6 +53,13 @@ func OpenURL(ctxt context.Context, url string, needLog bool) {
 	}
 }
 
+func reload() chromedp.Tasks {
+	return chromedp.Tasks{
+		chromedp.Reload(),
+		chromedp.Sleep(5 * time.Second),
+	}
+}
+
 func RunWithTimeOut(ctx *context.Context, timeout time.Duration, tasks chromedp.Tasks) chromedp.ActionFunc {
 	return func(ctx context.Context) error {
 		timeoutContext, cancel := context.WithTimeout(ctx, timeout*time.Second)
@@ -79,7 +86,11 @@ func WaitVisible(ctxt context.Context, selector string, needLog, needFatal bool)
 		if needFatal {
 			log.Fatal(err)
 		}
-		color.Green("Try again")
+		color.Green("Reload and try again")
+		err = chromedp.Run(ctxt, reload())
+		if err != nil {
+			log.Fatal(err)
+		}
 		WaitVisible(ctxt, selector, needLog, needFatal)
 	}
 	if needLog {
@@ -106,7 +117,10 @@ func GetString(ctxt context.Context, jsString string, resultString *string, need
 		if needFatal {
 			log.Fatal(err)
 		}
-		color.Green("Try again")
+		err = chromedp.Run(ctxt, reload())
+		if err != nil {
+			log.Fatal(err)
+		}
 		GetString(ctxt, jsString, resultString, needLog, needFatal)
 	}
 	if needLog {
@@ -134,7 +148,10 @@ func GetStringsSlice(ctxt context.Context, jsString string, stringSlice *[]strin
 		if needFatal {
 			log.Fatal(err)
 		}
-		color.Green("Try again")
+		err = chromedp.Run(ctxt, reload())
+		if err != nil {
+			log.Fatal(err)
+		}
 		GetStringsSlice(ctxt, jsString, stringSlice, needLog, needFatal)
 	}
 	if needLog {
@@ -156,7 +173,10 @@ func GetReader(ctxt context.Context, jsString string, needLog, needFatal bool) *
 		if needFatal {
 			log.Fatal(err)
 		}
-		color.Green("Try again")
+		err = chromedp.Run(ctxt, reload())
+		if err != nil {
+			log.Fatal(err)
+		}
 		GetReader(ctxt, jsString, needLog, needFatal)
 	}
 	if needLog {
@@ -184,7 +204,10 @@ func GetBool(ctxt context.Context, jsBool string, resultBool *bool, needLog, nee
 		if needFatal {
 			log.Fatal(err)
 		}
-		color.Green("Try again")
+		err = chromedp.Run(ctxt, reload())
+		if err != nil {
+			log.Fatal(err)
+		}
 		GetBool(ctxt, jsBool, resultBool, needLog, needFatal)
 	}
 	if needLog {
@@ -212,7 +235,10 @@ func Click(ctxt context.Context, selector string, needLog, needFatal bool) {
 		if needFatal {
 			log.Fatal(err)
 		}
-		color.Green("Try again")
+		err = chromedp.Run(ctxt, reload())
+		if err != nil {
+			log.Fatal(err)
+		}
 		Click(ctxt, selector, needLog, needFatal)
 	}
 	err = chromedp.Run(ctxt, RunWithTimeOut(&ctxt, 60, click(selector)))
@@ -222,7 +248,10 @@ func Click(ctxt context.Context, selector string, needLog, needFatal bool) {
 		if needFatal {
 			log.Fatal(err)
 		}
-		color.Green("Try again")
+		err = chromedp.Run(ctxt, reload())
+		if err != nil {
+			log.Fatal(err)
+		}
 		Click(ctxt, selector, needLog, needFatal)
 	}
 	if needLog {
@@ -252,7 +281,10 @@ func SetInputValue(ctxt context.Context, selector, value string, needLog, needFa
 		if needFatal {
 			log.Fatal(err)
 		}
-		color.Green("Try again")
+		err = chromedp.Run(ctxt, reload())
+		if err != nil {
+			log.Fatal(err)
+		}
 		SetInputValue(ctxt, selector, value, needLog, needFatal)
 	}
 	if needLog {
@@ -280,7 +312,10 @@ func WaitReady(ctxt context.Context, selector string, needLog, needFatal bool) {
 		if needFatal {
 			log.Fatal(err)
 		}
-		color.Green("Try again")
+		err = chromedp.Run(ctxt, reload())
+		if err != nil {
+			log.Fatal(err)
+		}
 		WaitReady(ctxt, selector, needLog, needFatal)
 	}
 	if needLog {
