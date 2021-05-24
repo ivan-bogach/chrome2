@@ -99,6 +99,38 @@ func WaitVisible(ctxt context.Context, selector string, needLog, needFatal bool)
 	}
 }
 
+func waitReady(selector string) chromedp.Tasks {
+	return chromedp.Tasks{
+		chromedp.WaitReady(selector, chromedp.ByQuery),
+	}
+}
+
+func WaitReady(ctxt context.Context, selector string, needLog, needFatal bool) {
+	if needLog {
+		c := color.New(color.FgGreen)
+		c.Printf("Wait ready css:' %s ' - ", selector)
+	}
+	err := chromedp.Run(ctxt, RunWithTimeOut(&ctxt, 60, waitReady(selector)))
+
+	if err != nil {
+		utils.SendErrorToTelegram("CHROME: WaitReady Error occured")
+		color.Red("Error in WaitReady occurred")
+		if needFatal {
+			log.Fatal(err)
+		}
+		color.Green("Reload and try again")
+		err = chromedp.Run(ctxt, reload())
+		if err != nil {
+			log.Fatal(err)
+		}
+		WaitReady(ctxt, selector, needLog, needFatal)
+	}
+	if needLog {
+		d := color.New(color.FgGreen, color.Bold)
+		d.Println("Ok!.")
+	}
+}
+
 func getString(jsString string, resultString *string) chromedp.Tasks {
 	return chromedp.Tasks{
 		chromedp.EvaluateAsDevTools(scriptGetString(jsString), resultString),
@@ -117,10 +149,7 @@ func GetString(ctxt context.Context, jsString string, resultString *string, need
 		if needFatal {
 			log.Fatal(err)
 		}
-		err = chromedp.Run(ctxt, reload())
-		if err != nil {
-			log.Fatal(err)
-		}
+		color.Green("Try again")
 		GetString(ctxt, jsString, resultString, needLog, needFatal)
 	}
 	if needLog {
@@ -148,10 +177,7 @@ func GetStringsSlice(ctxt context.Context, jsString string, stringSlice *[]strin
 		if needFatal {
 			log.Fatal(err)
 		}
-		err = chromedp.Run(ctxt, reload())
-		if err != nil {
-			log.Fatal(err)
-		}
+		color.Green("Try again")
 		GetStringsSlice(ctxt, jsString, stringSlice, needLog, needFatal)
 	}
 	if needLog {
@@ -173,10 +199,7 @@ func GetReader(ctxt context.Context, jsString string, needLog, needFatal bool) *
 		if needFatal {
 			log.Fatal(err)
 		}
-		err = chromedp.Run(ctxt, reload())
-		if err != nil {
-			log.Fatal(err)
-		}
+		color.Green("Try again")
 		GetReader(ctxt, jsString, needLog, needFatal)
 	}
 	if needLog {
@@ -204,10 +227,7 @@ func GetBool(ctxt context.Context, jsBool string, resultBool *bool, needLog, nee
 		if needFatal {
 			log.Fatal(err)
 		}
-		err = chromedp.Run(ctxt, reload())
-		if err != nil {
-			log.Fatal(err)
-		}
+		color.Green("Try again")
 		GetBool(ctxt, jsBool, resultBool, needLog, needFatal)
 	}
 	if needLog {
@@ -235,10 +255,7 @@ func Click(ctxt context.Context, selector string, needLog, needFatal bool) {
 		if needFatal {
 			log.Fatal(err)
 		}
-		err = chromedp.Run(ctxt, reload())
-		if err != nil {
-			log.Fatal(err)
-		}
+		color.Green("Try again")
 		Click(ctxt, selector, needLog, needFatal)
 	}
 	err = chromedp.Run(ctxt, RunWithTimeOut(&ctxt, 60, click(selector)))
@@ -248,10 +265,7 @@ func Click(ctxt context.Context, selector string, needLog, needFatal bool) {
 		if needFatal {
 			log.Fatal(err)
 		}
-		err = chromedp.Run(ctxt, reload())
-		if err != nil {
-			log.Fatal(err)
-		}
+		color.Green("Try again")
 		Click(ctxt, selector, needLog, needFatal)
 	}
 	if needLog {
@@ -281,45 +295,11 @@ func SetInputValue(ctxt context.Context, selector, value string, needLog, needFa
 		if needFatal {
 			log.Fatal(err)
 		}
-		err = chromedp.Run(ctxt, reload())
-		if err != nil {
-			log.Fatal(err)
-		}
+		color.Green("Try again")
 		SetInputValue(ctxt, selector, value, needLog, needFatal)
 	}
 	if needLog {
 		d := color.New(color.FgGreen, color.Bold)
 		d.Println("Ok!")
-	}
-}
-
-func waitReady(selector string) chromedp.Tasks {
-	return chromedp.Tasks{
-		chromedp.WaitReady(selector, chromedp.ByQuery),
-	}
-}
-
-func WaitReady(ctxt context.Context, selector string, needLog, needFatal bool) {
-	if needLog {
-		c := color.New(color.FgGreen)
-		c.Printf("Wait ready css:' %s ' - ", selector)
-	}
-	err := chromedp.Run(ctxt, RunWithTimeOut(&ctxt, 60, waitReady(selector)))
-
-	if err != nil {
-		utils.SendErrorToTelegram("CHROME: WaitReady Error occured")
-		color.Red("Error in WaitReady occurred")
-		if needFatal {
-			log.Fatal(err)
-		}
-		err = chromedp.Run(ctxt, reload())
-		if err != nil {
-			log.Fatal(err)
-		}
-		WaitReady(ctxt, selector, needLog, needFatal)
-	}
-	if needLog {
-		d := color.New(color.FgGreen, color.Bold)
-		d.Println("Ok!.")
 	}
 }
