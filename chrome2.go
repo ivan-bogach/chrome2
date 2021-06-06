@@ -40,7 +40,7 @@ func OpenURL(ctxt context.Context, url string, needLog bool) {
 	}
 
 	var message string
-	err := chromedp.Run(ctxt, openURL(url, &message))
+	err := chromedp.Run(ctxt, RunWithTimeOut(&ctxt, 60, openURL(url, &message)))
 	if err != nil {
 		utils.SendErrorToTelegram("CHROME: OpenURL Error occured: " + message)
 		color.Red("Error: %s", message)
