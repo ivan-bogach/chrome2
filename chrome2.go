@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/fatih/color"
-	"github.com/ivan-bogach/utils"
+	"github.com/ivan-bogach/nonsense"
 	"github.com/knq/chromedp"
 )
 
@@ -42,7 +42,11 @@ func OpenURL(ctxt context.Context, url string, needLog bool) {
 	var message string
 	err := chromedp.Run(ctxt, RunWithTimeOut(&ctxt, 60, openURL(url, &message)))
 	if err != nil {
-		utils.SendErrorToTelegram("CHROME: OpenURL Error occured: " + message)
+		statusCode := nonsense.SendStringToTelegram("CHROME: OpenURL Error occured: " + message)
+		if statusCode != 200 {
+			color.Red("can`t send error to telegram")
+		}
+
 		color.Red("Error: %s", message)
 		log.Fatal(err)
 	}
@@ -81,7 +85,10 @@ func WaitVisible(ctxt context.Context, selector string, needLog, needFatal bool)
 	}
 	err := chromedp.Run(ctxt, RunWithTimeOut(&ctxt, 60, waitVisible(selector)))
 	if err != nil {
-		utils.SendErrorToTelegram("CHROME: WaitVisible Error occured")
+		statusCode := nonsense.SendStringToTelegram("CHROME: WaitVisible Error occured")
+		if statusCode != 200 {
+			color.Red("can`t send error to telegram")
+		}
 		color.Red("Error in WaitVisible occurred")
 		if needFatal {
 			log.Fatal(err)
@@ -113,7 +120,10 @@ func WaitReady(ctxt context.Context, selector string, needLog, needFatal bool) {
 	err := chromedp.Run(ctxt, RunWithTimeOut(&ctxt, 60, waitReady(selector)))
 
 	if err != nil {
-		utils.SendErrorToTelegram("CHROME: WaitReady Error occured")
+		statusCode := nonsense.SendStringToTelegram("CHROME: WaitReady Error occured")
+		if statusCode != 200 {
+			color.Red("can`t send error to telegram")
+		}
 		color.Red("Error in WaitReady occurred")
 		if needFatal {
 			log.Fatal(err)
@@ -144,7 +154,10 @@ func GetString(ctxt context.Context, jsString string, resultString *string, need
 	}
 	err := chromedp.Run(ctxt, RunWithTimeOut(&ctxt, 60, getString(jsString, resultString)))
 	if err != nil {
-		utils.SendErrorToTelegram("CHROME: GetString Error occured")
+		statusCode := nonsense.SendStringToTelegram("CHROME: GetString Error occured")
+		if statusCode != 200 {
+			color.Red("can`t send error to telegram")
+		}
 		color.Red("Error in GetString occurred")
 		if needFatal {
 			log.Fatal(err)
@@ -172,7 +185,10 @@ func GetStringsSlice(ctxt context.Context, jsString string, stringSlice *[]strin
 	color.Green("")
 	err := chromedp.Run(ctxt, RunWithTimeOut(&ctxt, 60, getStringsSlice(jsString, stringSlice)))
 	if err != nil {
-		utils.SendErrorToTelegram("CHROME: GetStringsSlice Error occured")
+		statusCode := nonsense.SendStringToTelegram("CHROME: GetStringsSlice Error occured")
+		if statusCode != 200 {
+			color.Red("can`t send error to telegram")
+		}
 		color.Red("Error in GetStringsSlice occurred")
 		if needFatal {
 			log.Fatal(err)
@@ -194,7 +210,10 @@ func GetReader(ctxt context.Context, jsString string, needLog, needFatal bool) *
 	var resultString string
 	err := chromedp.Run(ctxt, RunWithTimeOut(&ctxt, 60, getString(jsString, &resultString)))
 	if err != nil {
-		utils.SendErrorToTelegram("CHROME: GetReader Error occured")
+		statusCode := nonsense.SendStringToTelegram("CHROME: GetReader Error occured")
+		if statusCode != 200 {
+			color.Red("can`t send error to telegram")
+		}
 		color.Red("Error in GetReader occurred")
 		if needFatal {
 			log.Fatal(err)
@@ -222,7 +241,10 @@ func GetBool(ctxt context.Context, jsBool string, resultBool *bool, needLog, nee
 	}
 	err := chromedp.Run(ctxt, RunWithTimeOut(&ctxt, 60, getBool(jsBool, resultBool)))
 	if err != nil {
-		utils.SendErrorToTelegram("CHROME: GetBool Error occured")
+		statusCode := nonsense.SendStringToTelegram("CHROME: GetBool Error occured")
+		if statusCode != 200 {
+			color.Red("can`t send error to telegram")
+		}
 		color.Red("Error in GetBool occurred")
 		if needFatal {
 			log.Fatal(err)
@@ -250,7 +272,10 @@ func Click(ctxt context.Context, selector string, needLog, needFatal bool) {
 	}
 	err := chromedp.Run(ctxt, RunWithTimeOut(&ctxt, 60, waitVisible(selector)))
 	if err != nil {
-		utils.SendErrorToTelegram("CHROME: Click Error occured")
+		statusCode := nonsense.SendStringToTelegram("CHROME: Click Error occured")
+		if statusCode != 200 {
+			color.Red("can`t send error to telegram")
+		}
 		color.Red("Error in Click occurred")
 		if needFatal {
 			log.Fatal(err)
@@ -260,7 +285,10 @@ func Click(ctxt context.Context, selector string, needLog, needFatal bool) {
 	}
 	err = chromedp.Run(ctxt, RunWithTimeOut(&ctxt, 60, click(selector)))
 	if err != nil {
-		utils.SendErrorToTelegram("CHROME: Click Error occured")
+		statusCode := nonsense.SendStringToTelegram("CHROME: Click Error occured")
+		if statusCode != 200 {
+			color.Red("can`t send error to telegram")
+		}
 		color.Red("Error in Click occurred")
 		if needFatal {
 			log.Fatal(err)
@@ -290,7 +318,10 @@ func SetInputValue(ctxt context.Context, selector, value string, needLog, needFa
 
 	err := chromedp.Run(ctxt, RunWithTimeOut(&ctxt, 60, setInputValue(selector, value, &resultOperation)))
 	if err != nil {
-		utils.SendErrorToTelegram("CHROME: SetInputValue Error occured")
+		statusCode := nonsense.SendStringToTelegram("CHROME: SetInputValue Error occured")
+		if statusCode != 200 {
+			color.Red("can`t send error to telegram")
+		}
 		color.Red("Error in SetInputValue occurred")
 		if needFatal {
 			log.Fatal(err)
