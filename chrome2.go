@@ -364,3 +364,20 @@ func SetInputValue(ctxt context.Context, selector, value string, needLog, needFa
 		d.Println("Ok!")
 	}
 }
+
+func parsePage(ctxt context.Context, js string) []string {
+	var strSl []string
+	GetStringsSlice(ctxt, js, &strSl, false, false)
+	return strSl
+}
+
+func StringSliceFromPage(ctxt context.Context, url, js string, waitFor ...string) []string {
+	OpenURL(ctxt, url, false)
+	for _, w := range waitFor {
+		WaitVisible(ctxt, w, false, false)
+	}
+	time.Sleep(1 * time.Second)
+	newJSONSl := parsePage(ctxt, js)
+
+	return newJSONSl
+}
