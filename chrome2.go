@@ -2,12 +2,14 @@ package chrome2
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"strings"
 	"time"
 
 	"github.com/fatih/color"
 	"github.com/ivan-bogach/nonsense"
+	"github.com/ivan-bogach/utils"
 	"github.com/knq/chromedp"
 )
 
@@ -365,6 +367,22 @@ func SetInputValue(ctxt context.Context, selector, value string, needLog, needFa
 	}
 }
 
+func WaitLoaded(ctxt context.Context) {
+	var loaded bool
+	GetBool(ctxt, `document.readyState !== 'ready' && document.readyState !== 'complete'`, &loaded, false, false)
+	fmt.Print("Wait")
+	n := 0
+	for loaded {
+		if n > 60 {
+			utils.SendErrorToTelegram("Minute passed!")
+		}
+		fmt.Print(".")
+		time.Sleep(1 * time.Second)
+		GetBool(ctxt, `document.readyState !== 'ready' && document.readyState !== 'complete'`, &loaded, false, false)
+		n++
+	}
+}
+
 func parsePage(ctxt context.Context, js string) []string {
 	var strSl []string
 	GetStringsSlice(ctxt, js, &strSl, false, false)
@@ -373,9 +391,14 @@ func parsePage(ctxt context.Context, js string) []string {
 
 func StringSliceFromPage(ctxt context.Context, url, js string, waitFor ...string) []string {
 	OpenURL(ctxt, url, false)
-	for _, w := range waitFor {
-		WaitVisible(ctxt, w, false, false)
+	if len(waitFor) == 0 {
+		WaitLoaded(ctxt)
+	} else {
+		for _, w := range waitFor {
+			WaitVisible(ctxt, w, false, false)
+		}
 	}
+
 	time.Sleep(1 * time.Second)
 	newJSONSl := parsePage(ctxt, js)
 
