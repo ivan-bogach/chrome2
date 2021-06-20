@@ -399,7 +399,7 @@ func StringSliceFromPage(ctxt context.Context, url, js string, waitFor ...string
 		}
 	}
 
-	time.Sleep(1 * time.Second)
+	time.Sleep(3 * time.Second)
 	newJSONSl := parsePage(ctxt, js)
 
 	return newJSONSl
