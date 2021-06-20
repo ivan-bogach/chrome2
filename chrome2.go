@@ -404,3 +404,25 @@ func StringSliceFromPage(ctxt context.Context, url, js string, waitFor ...string
 
 	return newJSONSl
 }
+
+func parseStrPage(ctxt context.Context, js string) string {
+	var str string
+	GetString(ctxt, js, &str, false, false)
+	return str
+}
+
+func StringFromPage(ctxt context.Context, url, js string, waitFor ...string) string {
+	OpenURL(ctxt, url, false)
+	if len(waitFor) == 0 {
+		WaitLoaded(ctxt)
+	} else {
+		for _, w := range waitFor {
+			WaitVisible(ctxt, w, false, false)
+		}
+	}
+
+	time.Sleep(3 * time.Second)
+	newJSON := parseStrPage(ctxt, js)
+
+	return newJSON
+}
